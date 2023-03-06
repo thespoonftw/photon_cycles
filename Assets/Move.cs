@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting.Dependencies.NCalc;
+using UnityEditor.Overlays;
 using UnityEngine;
 
 public class Move : MonoBehaviour
@@ -8,9 +10,12 @@ public class Move : MonoBehaviour
     float speed = 10;
     float ground_turn_speed = 90;
     float air_turn_speed = 30;
+    float fall_turn_speed = 60;
     float pullup_turn_speed = 180;
-    float scan_distance = 0.75f;
-    Vector3 scan_offset = new Vector3(0, 0.5f, 0);
+    float down_scan_distance = 0.75f;
+    float forward_scan_distance = 0.5f;
+    float air_ray_distance = 1000f;
+    float height_offset = 0.5f;
 
     float pullup_turn_radius => speed / (pullup_turn_speed * Mathf.Deg2Rad);
 
@@ -23,98 +28,142 @@ public class Move : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Physics.Raycast(transform.position + scan_offset, transform.forward, scan_distance))
+        if (IsDead())
         {
-            Debug.Log("Died");
-            transform.position = new Vector3(0, 0, 0);
-            transform.rotation = Quaternion.identity;
+            Kill();
             return;
         }
 
-        transform.position += speed * Time.deltaTime * transform.forward;
+        MoveForward();
 
-        var frontPosition = GetGroundPosition(transform.forward * 0.1f);
-        var backPosition = GetGroundPosition(-transform.forward * 0.1f);
-        var rightPosition = GetGroundPosition(transform.right * 0.1f);
-        var leftPosition = GetGroundPosition(-transform.right * 0.1f);
+        var centrePosition = GetGroundTarget(Vector3.zero);
 
-        bool isAirbourne;
-
-        // on the ground
-        if (frontPosition != null && backPosition != null && rightPosition != null && leftPosition != null)
+        if (centrePosition != null)
         {
-
-            isAirbourne = false;
-            var cross = Vector3.Cross((Vector3)(frontPosition - backPosition), (Vector3)(rightPosition - leftPosition)).normalized;
-            var fwd = ((Vector3)frontPosition - (Vector3)backPosition);
-            transform.rotation = Quaternion.LookRotation(fwd, cross);
+            GroundMovement((Vector3)centrePosition);
         }
-        // airbourne
         else
         {
-            isAirbourne = true;
+            AirMovement();
+        }
+    }
 
-            var gravityDirection = Quaternion.Euler(89, transform.rotation.eulerAngles.y, 0);
-            
+    private bool IsDead()
+    {
+        return Physics.Raycast(transform.position + (transform.up * height_offset), transform.forward, forward_scan_distance);
+    }
 
-            var airForwardRay = new Ray(transform.position, transform.forward);
-            var airUpRay = new Ray(transform.position, Quaternion.AngleAxis(1f, transform.right) * transform.forward);
-            var airLeftRay = new Ray(transform.position, Quaternion.AngleAxis(1f, transform.up) * transform.forward);
-            var airRightRay = new Ray(transform.position, Quaternion.AngleAxis(-1f, transform.up) * transform.forward);
+    private void Kill()
+    {
+        Debug.Log("Died");
+        transform.position = new Vector3(0, 0, 0);
+        transform.rotation = Quaternion.identity;
+    }
 
-            var isAirForward = Physics.Raycast(airForwardRay, out RaycastHit airForwardHit, 1000f);
-            var isAirUp = Physics.Raycast(airUpRay, out RaycastHit airUpHit, 1000f);
-            var isAirLeft = Physics.Raycast(airLeftRay, out RaycastHit airLeftHit, 1000f);
-            var isAirRight = Physics.Raycast(airRightRay, out RaycastHit airRightHit, 1000f);
+    private void MoveForward()
+    {
+        transform.position += speed * Time.deltaTime * transform.forward;
+    }
 
-            if (isAirUp && isAirForward && isAirLeft && isAirRight)
-            {
-                var groundVector = (airForwardHit.point - airUpHit.point);
-                var angleOfApproach = Vector3.Angle(transform.forward, groundVector);
-                var pullupDistance = pullup_turn_radius * Mathf.Sin(angleOfApproach * Mathf.Deg2Rad);
+    private void GroundMovement(Vector3 center)
+    {
+        transform.position = center;
+        transform.Rotate(new Vector3(0, ground_turn_speed * Time.deltaTime * GetTurnInputMultiplier(), 0));
 
-                if (airForwardHit.distance < pullupDistance)
-                {                  
-                    var planeUp = Vector3.Cross(groundVector, (airLeftHit.point - airRightHit.point));
-                    var targetRotation = Quaternion.LookRotation(groundVector, planeUp);
-                    //transform.position = airForwardHit.point;
-                    //transform.rotation = targetRotation;
-                    transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, pullup_turn_speed * Time.deltaTime);
+        var front = GetGroundTarget(transform.forward);
+        var back = GetGroundTarget(-transform.forward);
+        var right = GetGroundTarget(transform.right);
+        var left = GetGroundTarget(-transform.right);
 
-                } else
-                {
-                    transform.rotation = Quaternion.RotateTowards(transform.rotation, gravityDirection, air_turn_speed * Time.deltaTime);
-                }
-            }
-            else
-            {
-                transform.rotation = Quaternion.RotateTowards(transform.rotation, gravityDirection, air_turn_speed * Time.deltaTime);
-            }
-
-            
+        var forwardVector = transform.forward;
+        if (front != null && back != null)
+        {
+            forwardVector = (Vector3)front - (Vector3)back;
+        }
+        else if (front == null && back != null)
+        {
+            forwardVector = center - (Vector3)back;
+        }
+        else if (front != null && back == null)
+        {
+            forwardVector = (Vector3)front - center;
         }
 
-        var turn_speed = isAirbourne ? air_turn_speed : ground_turn_speed;
+        var rightVector = transform.right;
+        if (left != null && right != null)
+        {
+            rightVector = (Vector3)right - (Vector3)left;
+        }
+        else if (left != null && right == null)
+        {
+            rightVector = center - (Vector3)left;
+        }
+        else if (left == null && right != null)
+        {
+            rightVector = (Vector3)right - center;
+        }
 
+        var cross = Vector3.Cross(forwardVector, rightVector).normalized;
+        var targetRotation = Quaternion.LookRotation(forwardVector, cross);
+
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, pullup_turn_speed * Time.deltaTime);
+    }
+
+    private void AirMovement()
+    {
+        transform.Rotate(new Vector3(0, air_turn_speed * Time.deltaTime * GetTurnInputMultiplier(), 0));
+
+        if (!TryLand())
+        {
+            var gravityDirection = Quaternion.Euler(89, transform.rotation.eulerAngles.y, 0);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, gravityDirection, fall_turn_speed * Time.deltaTime);
+        }
+    }
+
+    private Vector3? GetGroundTarget(Vector3 dir)
+    {
+        var ray = new Ray(transform.position + (dir * down_scan_distance) + (transform.up * height_offset), -transform.up);
+        return Physics.Raycast(ray, out RaycastHit hit, down_scan_distance) ? hit.point : null;
+    }
+
+    private RaycastHit? GetAirTarget(Quaternion offset)
+    {
+        var ray = new Ray(transform.position, offset * transform.forward);
+        return Physics.Raycast(ray, out RaycastHit hit, air_ray_distance) ? hit : null;
+    }
+
+    private bool TryLand()
+    {
+        var forward = GetAirTarget(Quaternion.identity);
+        var up = GetAirTarget(Quaternion.AngleAxis(1f, transform.right));
+        var left = GetAirTarget(Quaternion.AngleAxis(1f, transform.up));
+        var right = GetAirTarget(Quaternion.AngleAxis(-1f, transform.up));
+
+        if (forward == null || up == null || left == null || right == null) return false;
+
+        var groundVector = forward.Value.point - up.Value.point;
+        var angleOfApproach = Vector3.Angle(transform.forward, groundVector);
+        var pullupDistance = pullup_turn_radius * Mathf.Sin(angleOfApproach * Mathf.Deg2Rad);
+
+        if (forward.Value.distance > pullupDistance) return false;
+
+        var planeUp = Vector3.Cross(groundVector, (left.Value.point - right.Value.point));
+        var targetRotation = Quaternion.LookRotation(groundVector, planeUp);
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, pullup_turn_speed * Time.deltaTime);
+
+        return true;
+    }
+
+    private int GetTurnInputMultiplier()
+    {
         if (Input.GetAxis("Horizontal") < -0.5 || Input.GetKey(KeyCode.LeftArrow))
         {
-            transform.Rotate(new Vector3(0, -turn_speed * Time.deltaTime, 0));
+            return -1;
         }
         if (Input.GetAxis("Horizontal") > 0.5 || Input.GetKey(KeyCode.RightArrow))
         {
-            transform.Rotate(new Vector3(0, +turn_speed * Time.deltaTime, 0));
+            return 1;
         }
-
-
-    }
-
-    private Vector3? GetGroundPosition(Vector3 dir)
-    {
-        var ray = new Ray(transform.position + (dir * scan_distance) + scan_offset, -transform.up);
-        if (Physics.Raycast(ray, out RaycastHit hit, scan_distance))
-        {
-            return hit.point;
-        }
-        return null;
+        return 0;
     }
 }

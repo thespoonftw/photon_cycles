@@ -5,27 +5,28 @@ using Unity.VisualScripting.Dependencies.NCalc;
 using UnityEditor.Overlays;
 using UnityEngine;
 
-public class Move : MonoBehaviour
+public class BikeController : MonoBehaviour
 {
+    [SerializeField] Transform cameraTransform;
+
     float speed = 10;
     float ground_turn_speed = 90;
     float air_turn_speed = 30;
     float fall_turn_speed = 60;
     float pullup_turn_speed = 180;
-    float down_scan_distance = 0.75f;
+    float down_scan_distance = 1.5f;
     float forward_scan_distance = 0.5f;
     float air_ray_distance = 1000f;
-    float height_offset = 0.5f;
+    float height_offset = 1f;
 
     float pullup_turn_radius => speed / (pullup_turn_speed * Mathf.Deg2Rad);
 
-    // Start is called before the first frame update
-    void Start()
+
+    public Transform GetCameraTransform()
     {
-        
+        return cameraTransform;
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (IsDead())

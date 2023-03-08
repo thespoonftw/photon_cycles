@@ -9,22 +9,29 @@ public class BikeController : MonoBehaviour
 {
     [SerializeField] Transform cameraTransform;
 
-    float speed = 10;
-    float ground_turn_speed = 90;
-    float air_turn_speed = 30;
-    float fall_turn_speed = 60;
-    float pullup_turn_speed = 180;
-    float down_scan_distance = 1.5f;
-    float forward_scan_distance = 0.5f;
-    float air_ray_distance = 1000f;
-    float height_offset = 1f;
+    private float speed = 10;
+    private float ground_turn_speed = 90;
+    private float air_turn_speed = 30;
+    private float fall_turn_speed = 60;
+    private float pullup_turn_speed = 180;
+    private float down_scan_distance = 1.5f;
+    private float forward_scan_distance = 0.5f;
+    private float air_ray_distance = 1000f;
+    private float height_offset = 1f;
 
-    float pullup_turn_radius => speed / (pullup_turn_speed * Mathf.Deg2Rad);
+    private float pullup_turn_radius => speed / (pullup_turn_speed * Mathf.Deg2Rad);
+
+    private string axis = string.Empty;
 
 
     public Transform GetCameraTransform()
     {
         return cameraTransform;
+    }
+
+    public void SetAxis(string axis)
+    {
+        this.axis = axis;
     }
 
     void Update()
@@ -157,11 +164,15 @@ public class BikeController : MonoBehaviour
 
     private int GetTurnInputMultiplier()
     {
-        if (Input.GetAxis("Horizontal") < -0.5 || Input.GetKey(KeyCode.LeftArrow))
+        if (axis == string.Empty) return 0;
+
+        var input = Input.GetAxis(axis);
+
+        if (input < -0.5)
         {
             return -1;
         }
-        if (Input.GetAxis("Horizontal") > 0.5 || Input.GetKey(KeyCode.RightArrow))
+        else if (input > 0.5)
         {
             return 1;
         }

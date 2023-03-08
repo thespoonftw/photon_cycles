@@ -24,8 +24,23 @@ public class GameManager : MonoBehaviour
         "Controller 2 - Right Joystick",
         "Controller 3 - Right Joystick",
         "Controller 4 - Right Joystick",
-        "Left keyboard",
-        "Right keyboard"
+        "Keyboard - Arrows",
+        "Keyboard - WASD"
+    };
+
+    private List<string> axes = new List<string>()
+    {
+        string.Empty,
+        "J2X",
+        "J4X",
+        "J6X",
+        "J8X",
+        "J1X",
+        "J3X",
+        "J5X",
+        "J7X",
+        "Arrows",
+        "WASD"
     };
 
     private void Start()
@@ -48,7 +63,8 @@ public class GameManager : MonoBehaviour
         if (existingBike != null)
         {
             cameras[playerIndex].transform.parent = transform;
-            cameras[playerIndex].transform.position = Vector3.zero;
+            cameras[playerIndex].transform.localPosition = Vector3.zero;
+            cameras[playerIndex].transform.localRotation = Quaternion.identity;
             Destroy(existingBike);
         }
 
@@ -58,6 +74,7 @@ public class GameManager : MonoBehaviour
             bikes[playerIndex] = newBike;
             var bikeController = newBike.GetComponent<BikeController>();
             cameras[playerIndex].transform.parent = bikeController.GetCameraTransform();
+            bikeController.SetAxis(axes[dropdownIndex]);
         }
     }
 }

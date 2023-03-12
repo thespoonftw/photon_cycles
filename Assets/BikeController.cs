@@ -21,7 +21,7 @@ public class BikeController : MonoBehaviour
 
     private float pullup_turn_radius => speed / (pullup_turn_speed * Mathf.Deg2Rad);
 
-    private string axis = string.Empty;
+    private Joystick joystick;
 
 
     public Transform GetCameraTransform()
@@ -29,9 +29,9 @@ public class BikeController : MonoBehaviour
         return cameraTransform;
     }
 
-    public void SetAxis(string axis)
+    public void SetJoystick(Joystick joystick)
     {
-        this.axis = axis;
+        this.joystick = joystick;
     }
 
     void Update()
@@ -76,7 +76,7 @@ public class BikeController : MonoBehaviour
     private void GroundMovement(Vector3 center)
     {
         transform.position = center;
-        transform.Rotate(new Vector3(0, ground_turn_speed * Time.deltaTime * GetTurnInputMultiplier(), 0));
+        transform.Rotate(new Vector3(0, ground_turn_speed * Time.deltaTime * joystick.GetXAxis(), 0));
 
         var front = GetGroundTarget(transform.forward);
         var back = GetGroundTarget(-transform.forward);
@@ -119,7 +119,7 @@ public class BikeController : MonoBehaviour
 
     private void AirMovement()
     {
-        transform.Rotate(new Vector3(0, air_turn_speed * Time.deltaTime * GetTurnInputMultiplier(), 0));
+        transform.Rotate(new Vector3(0, air_turn_speed * Time.deltaTime * joystick.GetXAxis(), 0));
 
         if (!TryLand())
         {
@@ -160,22 +160,5 @@ public class BikeController : MonoBehaviour
         transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, pullup_turn_speed * Time.deltaTime);
 
         return true;
-    }
-
-    private int GetTurnInputMultiplier()
-    {
-        if (axis == string.Empty) return 0;
-
-        var input = Input.GetAxis(axis);
-
-        if (input < -0.5)
-        {
-            return -1;
-        }
-        else if (input > 0.5)
-        {
-            return 1;
-        }
-        return 0;
     }
 }

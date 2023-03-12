@@ -1,80 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] List<TMP_Dropdown> dropDowns;
-    [SerializeField] List<GameObject> cameras;
-    [SerializeField] GameObject bikePrefab;    
-    [SerializeField] Transform spawnLocation;
-
-    private GameObject[] bikes = new GameObject[8];
-
-    private List<string> options = new List<string>()
+    IEnumerator Start()
     {
-        "Closed",
-        "Controller 1 - Left Joystick",
-        "Controller 2 - Left Joystick",
-        "Controller 3 - Left Joystick",
-        "Controller 4 - Left Joystick",
-        "Controller 1 - Right Joystick",
-        "Controller 2 - Right Joystick",
-        "Controller 3 - Right Joystick",
-        "Controller 4 - Right Joystick",
-        "Keyboard - Arrows",
-        "Keyboard - WASD"
-    };
+        SceneManager.LoadScene("PlayerSetup", LoadSceneMode.Additive);
+        yield return null;
+        var setup = FindObjectOfType<PlayerSetupManager>();
 
-    private List<string> axes = new List<string>()
-    {
-        string.Empty,
-        "J2X",
-        "J4X",
-        "J6X",
-        "J8X",
-        "J1X",
-        "J3X",
-        "J5X",
-        "J7X",
-        "Arrows",
-        "WASD"
-    };
+        SceneManager.LoadScene(2, LoadSceneMode.Additive);
+        yield return null;
+        var spawnLocater = FindObjectOfType<SpawnLocater>();
 
-    private void Start()
-    {
-        for (int i=0; i< dropDowns.Count; i++)
-        {
-            var d = dropDowns[i];
-            d.ClearOptions();
-            d.AddOptions(options);
-            int index = i;
-            d.onValueChanged.AddListener(delegate {
-                DropDown(index, d.value);
-            });
-        }
-    }
-
-    private void DropDown(int playerIndex, int dropdownIndex)
-    {
-        var existingBike = bikes[playerIndex];
-        if (existingBike != null)
-        {
-            cameras[playerIndex].transform.parent = transform;
-            cameras[playerIndex].transform.localPosition = Vector3.zero;
-            cameras[playerIndex].transform.localRotation = Quaternion.identity;
-            Destroy(existingBike);
-        }
-
-        if (dropdownIndex != 0)
-        {
-            var newBike = Instantiate(bikePrefab, spawnLocation.position, spawnLocation.rotation);
-            bikes[playerIndex] = newBike;
-            var bikeController = newBike.GetComponent<BikeController>();
-            cameras[playerIndex].transform.parent = bikeController.GetCameraTransform();
-            bikeController.SetAxis(axes[dropdownIndex]);
-        }
+        setup.Init(spawnLocater);
     }
 }

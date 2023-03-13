@@ -1,36 +1,45 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
-public enum Joystick
+public class Joystick   
 {
-    J1,
-    J2,
-    J3,
-    J4,
-    J5,
-    J6,
-    J7,
-    J8,
-    Arrows,
-    WASD
-}
+    private static List<Joystick> joysticks = null;
 
-public static class JoystickHelper   
-{
-    public static Joystick[] GetControllerTypes()
+    private static List<string> joystickStrings = new()
     {
-        return (Joystick[])Joystick.GetValues(typeof(Joystick));
+        "J1",
+        "J2",
+        "J3",
+        "J4",
+        "J5",
+        "J6",
+        "J7",
+        "J8",
+        "Arrows",
+        "WASD"
+    };
+
+    private string xAxisName;
+    private string yAxisName;
+
+    private Joystick(string joystickName)
+    {
+        xAxisName = joystickName + "-X";
+        yAxisName = joystickName + "-Y";
     }
 
-    public static int GetXAxis(this Joystick type) => RawToInt(type.GetXRaw());
+    public static List<Joystick> GetAllJoysticks()
+    {
+        joysticks ??= joystickStrings.Select(s => new Joystick(s)).ToList();
+        return joysticks;
+    }
 
-    public static int GetYAxis(this Joystick type) => RawToInt(type.GetYRaw());
+    public int GetXAxis() => RawToInt(Input.GetAxis(xAxisName));
 
-    private static float GetXRaw(this Joystick type) => Input.GetAxis(type.ToString() + "-X");
+    public int GetYAxis() => RawToInt(Input.GetAxis(yAxisName));
 
-    private static float GetYRaw(this Joystick type) => Input.GetAxis(type.ToString() + "-Y");
-
-    private static int RawToInt(float value)
+    private int RawToInt(float value)
     {
         if (value < -0.5f)
             return -1;
@@ -39,5 +48,4 @@ public static class JoystickHelper
 
         return 0;
     }
-
 }

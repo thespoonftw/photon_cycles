@@ -5,16 +5,46 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+    private int practiceSceneIndex = 1;
+
+    [SerializeField] BikeManager bikeManager;
+    [SerializeField] PlayerSetupManager playerSetupManager;
+    [SerializeField] GameObject playerSetupCanvas;
+    [SerializeField] LiveGameManager liveGameManager;
+
     IEnumerator Start()
     {
-        SceneManager.LoadScene("PlayerSetup", LoadSceneMode.Additive);
-        yield return null;
-        var setup = FindObjectOfType<PlayerSetupManager>();
+        yield return SceneManager.LoadSceneAsync(practiceSceneIndex, LoadSceneMode.Additive);
+        var practiceScene = SceneManager.GetSceneByBuildIndex(practiceSceneIndex);
+        SceneManager.SetActiveScene(practiceScene);
 
-        SceneManager.LoadScene(2, LoadSceneMode.Additive);
-        yield return null;
         var spawnLocater = FindObjectOfType<SpawnLocater>();
+        bikeManager.Init(spawnLocater);
 
-        setup.Init(spawnLocater);
+        playerSetupManager.enabled = true;
+        playerSetupCanvas.SetActive(true);
+        playerSetupManager.Init(bikeManager, StartGame);
+    }
+
+    private void StartGame(List<Player> joysticks)
+    {
+        StartCoroutine(StartGameAsync(joysticks));
+        
+    }
+
+    private IEnumerator StartGameAsync(List<Player> players)
+    {
+        playerSetupManager.enabled = false;
+        playerSetupCanvas.SetActive(false);
+
+        bikeManager.RemoveAllPlayers();
+
+        yield return SceneManager.UnloadSceneAsync(practiceSceneIndex);
+        yield return SceneManager.LoadSceneAsync(practiceSceneIndex, LoadSceneMode.Additive);
+
+        var spawnLocater = FindObjectOfType<SpawnLocater>();
+        bikeManager.Init(spawnLocater);
+
+        liveGameManager.Init(bikeManager, players);
     }
 }

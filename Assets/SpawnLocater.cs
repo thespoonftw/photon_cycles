@@ -6,8 +6,12 @@ public class SpawnLocater : MonoBehaviour
 {
     [SerializeField] List<Transform> spawns;
 
-    public Transform GetSpawnForPlayer(int playerIndex)
+    private int spawnIndex = 0;
+
+    public Transform GetNextSpawn()
     {
-        return spawns[playerIndex];
+        var returner = spawns[spawnIndex % spawns.Count];
+        spawnIndex++;
+        return returner;
     }
 }

@@ -1,13 +1,12 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting.Dependencies.NCalc;
-using UnityEditor.Overlays;
 using UnityEngine;
 
 public class BikeController : MonoBehaviour
 {
     [SerializeField] Transform cameraTransform;
+    [SerializeField] List<GameObject> partsToColour;
+    [SerializeField] GameObject body;
 
     private float speed = 10;
     private float ground_turn_speed = 90;
@@ -19,23 +18,48 @@ public class BikeController : MonoBehaviour
     private float air_ray_distance = 1000f;
     private float height_offset = 1f;
 
-    private float pullup_turn_radius => speed / (pullup_turn_speed * Mathf.Deg2Rad);
+    private Player player;
 
-    private Joystick joystick;
+    private bool isMoving = false;
+    private Transform spawn;
 
+    public event Action OnDeath;
 
-    public Transform GetCameraTransform()
+    public void Init(Player player, Transform spawn)
     {
-        return cameraTransform;
+        this.player = player;
+        this.spawn = spawn;
+
+        var mat = new Material(partsToColour[0].GetComponent<MeshRenderer>().material);
+        mat.color = player.Color;
+        partsToColour.ForEach(p => p.GetComponent<MeshRenderer>().material = mat);
     }
 
-    public void SetJoystick(Joystick joystick)
+    public Transform GetCameraTransform() => cameraTransform;
+
+    public void SetMoving(bool isMoving)
     {
-        this.joystick = joystick;
+        this.isMoving = isMoving;
     }
+
+    public void SetVisible(bool isVisible)
+    {
+        body.SetActive(isVisible);
+    }
+
+    public void ReturnToSpawn()
+    {
+        transform.position = spawn.position;
+        transform.rotation = spawn.rotation;
+    }
+
+    private float GetPullUpTurnRadius() => speed / (pullup_turn_speed * Mathf.Deg2Rad);
 
     void Update()
     {
+        if (!isMoving)
+            return;
+
         if (IsDead())
         {
             Kill();
@@ -63,9 +87,9 @@ public class BikeController : MonoBehaviour
 
     private void Kill()
     {
-        Debug.Log("Died");
-        transform.position = new Vector3(0, 0, 0);
-        transform.rotation = Quaternion.identity;
+        SetMoving(false);
+        SetVisible(false);
+        OnDeath?.Invoke();
     }
 
     private void MoveForward()
@@ -76,7 +100,7 @@ public class BikeController : MonoBehaviour
     private void GroundMovement(Vector3 center)
     {
         transform.position = center;
-        transform.Rotate(new Vector3(0, ground_turn_speed * Time.deltaTime * joystick.GetXAxis(), 0));
+        transform.Rotate(new Vector3(0, ground_turn_speed * Time.deltaTime * player.Joystick.GetXAxis(), 0));
 
         var front = GetGroundTarget(transform.forward);
         var back = GetGroundTarget(-transform.forward);
@@ -119,7 +143,7 @@ public class BikeController : MonoBehaviour
 
     private void AirMovement()
     {
-        transform.Rotate(new Vector3(0, air_turn_speed * Time.deltaTime * joystick.GetXAxis(), 0));
+        transform.Rotate(new Vector3(0, air_turn_speed * Time.deltaTime * player.Joystick.GetXAxis(), 0));
 
         if (!TryLand())
         {
@@ -151,7 +175,7 @@ public class BikeController : MonoBehaviour
 
         var groundVector = forward.Value.point - up.Value.point;
         var angleOfApproach = Vector3.Angle(transform.forward, groundVector);
-        var pullupDistance = pullup_turn_radius * Mathf.Sin(angleOfApproach * Mathf.Deg2Rad);
+        var pullupDistance = GetPullUpTurnRadius() * Mathf.Sin(angleOfApproach * Mathf.Deg2Rad);
 
         if (forward.Value.distance > pullupDistance) return false;
 

@@ -9,19 +9,23 @@ public class BikeController : MonoBehaviour
     [SerializeField] GameObject body;
 
     private float speed = 10;
-    private float ground_turn_speed = 90;
+    private float ground_turn_speed = 150;
     private float air_turn_speed = 30;
     private float fall_turn_speed = 60;
     private float pullup_turn_speed = 180;
     private float down_scan_distance = 1.5f;
     private float forward_scan_distance = 0.5f;
     private float air_ray_distance = 1000f;
-    private float height_offset = 1f;
+    private float ground_height_offset = 1f;
+    private float trail_height_offset = 0.5f;
 
     private Player player;
+    private TrailBuilder trailBuilder;
 
     private bool isMoving = false;
     private Transform spawn;
+    private LayerMask groundMask;
+    private LayerMask trailMask;
 
     public event Action OnDeath;
 
@@ -33,24 +37,36 @@ public class BikeController : MonoBehaviour
         var mat = new Material(partsToColour[0].GetComponent<MeshRenderer>().material);
         mat.color = player.Color;
         partsToColour.ForEach(p => p.GetComponent<MeshRenderer>().material = mat);
+        trailBuilder = GetComponent<TrailBuilder>();
+        trailBuilder.Init(player);
+        groundMask = LayerMask.GetMask("Default");
+        trailMask = LayerMask.GetMask("Trail");
     }
 
     public Transform GetCameraTransform() => cameraTransform;
 
-    public void SetMoving(bool isMoving)
-    {
-        this.isMoving = isMoving;
-    }
-
-    public void SetVisible(bool isVisible)
-    {
-        body.SetActive(isVisible);
-    }
-
-    public void ReturnToSpawn()
+    public void ResetBikeStartOfRound()
     {
         transform.position = spawn.position;
         transform.rotation = spawn.rotation;
+        SetVisible(true);
+        trailBuilder.ClearTrail();
+    }
+
+    public void StartMovingBikeStartOfRound()
+    {
+        trailBuilder.SetEnabled(true);
+        isMoving = true;
+    }
+
+    public void StartMovingBikeForPlayerSelect()
+    {
+        isMoving = true;
+    }
+
+    public void PauseBikeAtEndOfRound()
+    {
+        isMoving = false;
     }
 
     private float GetPullUpTurnRadius() => speed / (pullup_turn_speed * Mathf.Deg2Rad);
@@ -78,16 +94,21 @@ public class BikeController : MonoBehaviour
         {
             AirMovement();
         }
+
+        trailBuilder.AddTrail();
     }
 
     private bool IsDead()
     {
-        return Physics.Raycast(transform.position + (transform.up * height_offset), transform.forward, forward_scan_distance);
+        if (Physics.Raycast(transform.position + (transform.up * ground_height_offset), transform.forward, forward_scan_distance, groundMask))
+            return true;
+
+        return Physics.Raycast(transform.position + (transform.up * trail_height_offset), transform.forward, forward_scan_distance, trailMask);
     }
 
     private void Kill()
     {
-        SetMoving(false);
+        isMoving = false;
         SetVisible(false);
         OnDeath?.Invoke();
     }
@@ -154,14 +175,14 @@ public class BikeController : MonoBehaviour
 
     private Vector3? GetGroundTarget(Vector3 dir)
     {
-        var ray = new Ray(transform.position + (dir * down_scan_distance) + (transform.up * height_offset), -transform.up);
-        return Physics.Raycast(ray, out RaycastHit hit, down_scan_distance) ? hit.point : null;
+        var ray = new Ray(transform.position + (dir * down_scan_distance) + (transform.up * ground_height_offset), -transform.up);
+        return Physics.Raycast(ray, out RaycastHit hit, down_scan_distance, groundMask) ? hit.point : null;
     }
 
     private RaycastHit? GetAirTarget(Quaternion offset)
     {
         var ray = new Ray(transform.position, offset * transform.forward);
-        return Physics.Raycast(ray, out RaycastHit hit, air_ray_distance) ? hit : null;
+        return Physics.Raycast(ray, out RaycastHit hit, air_ray_distance, groundMask) ? hit : null;
     }
 
     private bool TryLand()
@@ -184,5 +205,10 @@ public class BikeController : MonoBehaviour
         transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, pullup_turn_speed * Time.deltaTime);
 
         return true;
+    }
+
+    private void SetVisible(bool isVisible)
+    {
+        body.SetActive(isVisible);
     }
 }

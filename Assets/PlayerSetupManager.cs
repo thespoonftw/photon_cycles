@@ -57,7 +57,7 @@ public class PlayerSetupManager : MonoBehaviour
         inactiveJoysticks.Remove(joystick);
         holdDownTime.Add(player, 0);
         bikeManager.CreateBikeForPlayer(player);
-        player.Bike.SetMoving(true);
+        player.Bike.StartMovingBikeForPlayerSelect();
     }
 
     private void RemovePlayer(Player player)

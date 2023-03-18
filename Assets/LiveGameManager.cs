@@ -36,8 +36,7 @@ public class LiveGameManager : MonoBehaviour
     {
         countdown_seconds = 3;
         livingPlayers = allPlayers.ToList();
-        allPlayers.ForEach(p => p.Bike.SetVisible(true));
-        allPlayers.ForEach(p => p.Bike.ReturnToSpawn());
+        allPlayers.ForEach(p => p.Bike.ResetBikeStartOfRound());
         StartCoroutine(CountDown());
     }
 
@@ -60,7 +59,7 @@ public class LiveGameManager : MonoBehaviour
     private void FinishCountdown()
     {
         countdownText.text = "";
-        livingPlayers.ForEach(p => p.Bike.SetMoving(true));
+        livingPlayers.ForEach(p => p.Bike.StartMovingBikeStartOfRound());
     }
 
     private void OnPlayerDeath(Player player)
@@ -75,7 +74,7 @@ public class LiveGameManager : MonoBehaviour
 
     private void EndRound()
     {
-        livingPlayers.ForEach(p => p.Bike.SetMoving(false));
+        livingPlayers.ForEach(p => p.Bike.PauseBikeAtEndOfRound());
         StartCoroutine(EndRoundAsync());
     }
 

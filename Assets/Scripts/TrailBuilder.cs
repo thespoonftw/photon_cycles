@@ -18,7 +18,7 @@ public class TrailBuilder : MonoBehaviour
     private const float TRAIL_HEIGHT = 0.8f;
     private const float TRAIL_WIDTH = 0.2f;
     private const float HALF_WIDTH = TRAIL_WIDTH / 2f;
-    private const float BACK_OFFSET = 0.1f;
+    private const float BACK_OFFSET = 0.25f;
     private const float MIN_POLY_DIST = 1f;
 
     private bool isEnabled = false;
@@ -51,7 +51,6 @@ public class TrailBuilder : MonoBehaviour
         triangles.Clear();
         n = 0;
         meshFilter.mesh.Clear();
-        meshCollider.sharedMesh = null;
 
         AddTrail();
     }

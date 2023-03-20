@@ -2,13 +2,10 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BikeController : MonoBehaviour
+public class BikeMover : MonoBehaviour
 {
-    [SerializeField] Transform cameraTransform;
-    [SerializeField] List<GameObject> partsToColour;
-    [SerializeField] GameObject body;
-
-    private float speed = 10;
+    private float unboosted_speed = 10;
+    private float boosted_speed = 17;
     private float ground_turn_speed = 150;
     private float air_turn_speed = 30;
     private float fall_turn_speed = 60;
@@ -19,70 +16,23 @@ public class BikeController : MonoBehaviour
     private float ground_height_offset = 1f;
     private float trail_height_offset = 0.5f;
 
-    private Player player;
-    private TrailBuilder trailBuilder;
-
-    private bool isMoving = false;
-    private Transform spawn;
     private LayerMask groundMask;
     private LayerMask trailMask;
+    private IInputController input;
 
-    public event Action OnDeath;
-
-    public void Init(Player player, Transform spawn)
+    public void Init(IInputController input)
     {
-        this.player = player;
-        this.spawn = spawn;
-
-        var mat = new Material(partsToColour[0].GetComponent<MeshRenderer>().material);
-        mat.color = player.Color;
-        partsToColour.ForEach(p => p.GetComponent<MeshRenderer>().material = mat);
-        trailBuilder = GetComponent<TrailBuilder>();
-        trailBuilder.Init(player);
+        this.input = input;
         groundMask = LayerMask.GetMask("Default");
         trailMask = LayerMask.GetMask("Trail");
     }
 
-    public Transform GetCameraTransform() => cameraTransform;
+    private float GetPullUpTurnRadius() => unboosted_speed / (pullup_turn_speed * Mathf.Deg2Rad);
 
-    public void ResetBikeStartOfRound()
+    public void UpdatePosition()
     {
-        transform.position = spawn.position;
-        transform.rotation = spawn.rotation;
-        SetVisible(true);
-        trailBuilder.ClearTrail();
-    }
-
-    public void StartMovingBikeStartOfRound()
-    {
-        trailBuilder.SetEnabled(true);
-        isMoving = true;
-    }
-
-    public void StartMovingBikeForPlayerSelect()
-    {
-        isMoving = true;
-    }
-
-    public void PauseBikeAtEndOfRound()
-    {
-        isMoving = false;
-    }
-
-    private float GetPullUpTurnRadius() => speed / (pullup_turn_speed * Mathf.Deg2Rad);
-
-    void Update()
-    {
-        if (!isMoving)
-            return;
-
-        if (IsDead())
-        {
-            Kill();
-            return;
-        }
-
-        MoveForward();
+        var speed = input.IsButton1Held() ? boosted_speed : unboosted_speed;
+        MoveForward(speed);
 
         var centrePosition = GetGroundTarget(Vector3.zero);
 
@@ -94,34 +44,34 @@ public class BikeController : MonoBehaviour
         {
             AirMovement();
         }
-
-        trailBuilder.AddTrail();
     }
 
-    private bool IsDead()
+    public bool IsColliding()
     {
+        // ground in front
         if (Physics.Raycast(transform.position + (transform.up * ground_height_offset), transform.forward, forward_scan_distance, groundMask))
             return true;
 
-        return Physics.Raycast(transform.position + (transform.up * trail_height_offset), transform.forward, forward_scan_distance, trailMask);
+        // trail in front
+        if (Physics.Raycast(transform.position + (transform.up * trail_height_offset), transform.forward, forward_scan_distance, trailMask))
+            return true;
+
+        // trail below
+        if (Physics.Raycast(transform.position + (transform.up * trail_height_offset), -transform.up, 1f, trailMask))
+            return true;
+
+        return false;
     }
 
-    private void Kill()
+    private void MoveForward(float moveSpeed)
     {
-        isMoving = false;
-        SetVisible(false);
-        OnDeath?.Invoke();
-    }
-
-    private void MoveForward()
-    {
-        transform.position += speed * Time.deltaTime * transform.forward;
+        transform.position += moveSpeed * Time.deltaTime * transform.forward;
     }
 
     private void GroundMovement(Vector3 center)
     {
         transform.position = center;
-        transform.Rotate(new Vector3(0, ground_turn_speed * Time.deltaTime * player.Joystick.GetXAxis(), 0));
+        transform.Rotate(new Vector3(0, ground_turn_speed * Time.deltaTime * input.GetXAxis(), 0));
 
         var front = GetGroundTarget(transform.forward);
         var back = GetGroundTarget(-transform.forward);
@@ -164,7 +114,7 @@ public class BikeController : MonoBehaviour
 
     private void AirMovement()
     {
-        transform.Rotate(new Vector3(0, air_turn_speed * Time.deltaTime * player.Joystick.GetXAxis(), 0));
+        transform.Rotate(new Vector3(0, air_turn_speed * Time.deltaTime * input.GetXAxis(), 0));
 
         if (!TryLand())
         {
@@ -205,10 +155,5 @@ public class BikeController : MonoBehaviour
         transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, pullup_turn_speed * Time.deltaTime);
 
         return true;
-    }
-
-    private void SetVisible(bool isVisible)
-    {
-        body.SetActive(isVisible);
     }
 }

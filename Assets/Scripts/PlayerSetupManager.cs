@@ -18,7 +18,7 @@ public class PlayerSetupManager : MonoBehaviour
     };
 
     private List<Player> activePlayers = new List<Player>();
-    private List<Joystick> inactiveJoysticks = Joystick.GetAllJoysticks();
+    private List<IInputController> inactiveControllers = IInputController.GetAllControllers();
     private Dictionary<Player, float> holdDownTime = new();
     private BikeManager bikeManager;
 
@@ -36,7 +36,7 @@ public class PlayerSetupManager : MonoBehaviour
     private void Update()
     {
         // add controllers that have movement
-        inactiveJoysticks.Where(j => j.GetXAxis() != 0).ToList().ForEach(j => AddPlayer(j));
+        inactiveControllers.Where(j => j.GetXAxis() != 0).ToList().ForEach(j => AddPlayer(j));
 
         // measure hold down time
         activePlayers.ForEach(j => MeasureHoldDownTime(j));
@@ -48,13 +48,13 @@ public class PlayerSetupManager : MonoBehaviour
         
     }
 
-    private void AddPlayer(Joystick joystick)
+    private void AddPlayer(IInputController input)
     {
         var newColor = availableColors[0];
         availableColors.Remove(newColor);
-        var player = new Player(joystick, newColor);
+        var player = new Player(input, newColor);
         activePlayers.Add(player);
-        inactiveJoysticks.Remove(joystick);
+        inactiveControllers.Remove(input);
         holdDownTime.Add(player, 0);
         bikeManager.CreateBikeForPlayer(player);
         player.Bike.StartMovingBikeForPlayerSelect();
@@ -64,14 +64,14 @@ public class PlayerSetupManager : MonoBehaviour
     {       
         availableColors.Add(player.Color);
         activePlayers.Remove(player);
-        inactiveJoysticks.Add(player.Joystick);
+        inactiveControllers.Add(player.Input);
         holdDownTime.Remove(player);
         bikeManager.RemoveBikeForPlayer(player);
     }
 
     private void MeasureHoldDownTime(Player player)
     {
-        if (player.Joystick.GetYAxis() == -1)
+        if (player.Input.IsButton2Held())
         {
             holdDownTime[player] += Time.deltaTime;            
         }

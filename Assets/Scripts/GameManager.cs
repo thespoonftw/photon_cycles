@@ -26,9 +26,9 @@ public class GameManager : MonoBehaviour
         playerSetupManager.Init(bikeManager, StartGame);
     }
 
-    private void StartGame(List<Player> joysticks)
+    private void StartGame(List<Player> players)
     {
-        StartCoroutine(StartGameAsync(joysticks));
+        StartCoroutine(StartGameAsync(players));
         
     }
 

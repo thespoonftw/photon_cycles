@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Player   
 {
-    public Joystick Joystick { get; private set; }
+    public IInputController Input { get; private set; }
 
     public BikeController Bike { get; private set; }
 
@@ -11,9 +11,9 @@ public class Player
 
     public Color Color { get; private set; }
 
-    public Player(Joystick joystick, Color color)
+    public Player(IInputController input, Color color)
     {
-        this.Joystick = joystick;
+        this.Input = input;
         this.Color = color;
     }
 

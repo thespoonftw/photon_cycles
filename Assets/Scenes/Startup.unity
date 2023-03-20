@@ -172,7 +172,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
+  far clip plane: 0.31
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -399,8 +399,12 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Left/Right: Add Player                           Up: Change Color                     
-    Hold Down: Remove Player                      Start/Enter: Begin'
+  m_text: 'KEYBOARD         Left/Right: Move          Up: Boost          Down: Item         
+    Hold Up: Start Game          Hold Down: Exit
+
+    CONTROLLER         Left/Right:
+    Move          Trigger: Boost          Bumper: Item          Hold Trigger: Start
+    Game          Hold Bumper: Exit'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

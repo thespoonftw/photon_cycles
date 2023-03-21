@@ -8,20 +8,17 @@ public interface IInputController
 
     public bool IsButton2Held();
 
-    public static List<IInputController> GetAllControllers()
+    public static List<IInputController> allControllers = new()
     {
-        return new()
-        {
-            new GamepadController(1, true),
-            new GamepadController(1, false),
-            new GamepadController(2, true),
-            new GamepadController(2, false),
-            new GamepadController(3, true),
-            new GamepadController(3, false),
-            new GamepadController(4, true),
-            new GamepadController(4, false),
-            new WASDController(),
-            new ArrowsController()
-        };
-    }
+        new GamepadController(1, true),
+        new GamepadController(1, false),
+        new GamepadController(2, true),
+        new GamepadController(2, false),
+        new GamepadController(3, true),
+        new GamepadController(3, false),
+        new GamepadController(4, true),
+        new GamepadController(4, false),
+        new WASDController(),
+        new ArrowsController()
+    };
 }

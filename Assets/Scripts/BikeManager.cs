@@ -8,6 +8,7 @@ public class BikeManager : MonoBehaviour
 {
     [SerializeField] CameraLoader cameraLoader;
     [SerializeField] GameObject bikePrefab;
+    [SerializeField] GameObject canvasPrefab;
 
     private List<Player> players = new();
 
@@ -67,7 +68,11 @@ public class BikeManager : MonoBehaviour
 
     private void RemoveCameras()
     {
-        players.Where(p => p.Camera != null).ToList().ForEach(p => Destroy(p.Camera.gameObject));
+        foreach (var p in players)
+        {
+            if (p.Camera != null) { Destroy(p.Camera); }
+            if (p.CanvasGo != null) { Destroy(p.CanvasGo); }
+        }
     }
 
     private void CreateCameras()
@@ -80,7 +85,11 @@ public class BikeManager : MonoBehaviour
             var cameraGo = Instantiate(cameraPrefab, cameraParent.position, cameraParent.rotation, cameraParent.transform);
             var camera = cameraGo.GetComponent<Camera>();
             camera.fieldOfView = 70;
-            player.SetCamera(camera);
+            var canvasGo = Instantiate(canvasPrefab);
+            var canvas = canvasGo.GetComponent<Canvas>();
+            canvas.worldCamera = camera;
+            canvas.planeDistance = 1;
+            player.SetCamera(camera, canvasGo);
         }
     }
 

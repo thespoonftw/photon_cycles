@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -8,9 +9,14 @@ public class GameManager : MonoBehaviour
     private int practiceSceneIndex = 1;
 
     [SerializeField] BikeManager bikeManager;
-    [SerializeField] PlayerSetupManager playerSetupManager;
     [SerializeField] GameObject playerSetupCanvas;
     [SerializeField] LiveGameManager liveGameManager;
+    [SerializeField] Updater updater;
+    [SerializeField] LevelSelectCanvas levelSelectCanvas;
+
+    private PlayerSetupManager playerSetupManager;
+    private LevelSelectManager levelSelectManager;
+    private List<Player> players;
 
     IEnumerator Start()
     {
@@ -21,30 +27,52 @@ public class GameManager : MonoBehaviour
         var spawnLocater = FindObjectOfType<SpawnLocater>();
         bikeManager.Init(spawnLocater);
 
-        playerSetupManager.enabled = true;
         playerSetupCanvas.SetActive(true);
-        playerSetupManager.Init(bikeManager, StartGame);
+        playerSetupManager = new PlayerSetupManager(bikeManager, FinishPlayerSetup, updater, new());
     }
 
-    private void StartGame(List<Player> players)
-    {
-        StartCoroutine(StartGameAsync(players));
-        
-    }
+    private void FinishPlayerSetup(List<Player> players) => StartCoroutine(FinishPlayerSetupAsync(players));
 
-    private IEnumerator StartGameAsync(List<Player> players)
+    private IEnumerator FinishPlayerSetupAsync(List<Player> players)
     {
-        playerSetupManager.enabled = false;
+        this.players = players;
         playerSetupCanvas.SetActive(false);
-
-        bikeManager.RemoveAllPlayers();
-
         yield return SceneManager.UnloadSceneAsync(practiceSceneIndex);
-        yield return SceneManager.LoadSceneAsync(practiceSceneIndex, LoadSceneMode.Additive);
+
+        levelSelectManager = new LevelSelectManager(updater, players.First(), levelSelectCanvas, FinishLevelSelect);
+    }
+
+    private void FinishLevelSelect(int levelSelectIndex) => StartCoroutine(FinishLevelSelectAsync(levelSelectIndex));
+
+    private IEnumerator FinishLevelSelectAsync(int levelSelectIndex)
+    {
+        yield return SceneManager.LoadSceneAsync(levelSelectIndex, LoadSceneMode.Additive);
+        SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(levelSelectIndex));
 
         var spawnLocater = FindObjectOfType<SpawnLocater>();
         bikeManager.Init(spawnLocater);
 
-        liveGameManager.Init(bikeManager, players);
+        liveGameManager.Init(bikeManager, players, EndGame);
+    }
+
+    private void EndGame()
+    {
+        StartCoroutine(EndGameAsync());
+    }
+
+    private IEnumerator EndGameAsync()
+    {
+        bikeManager.RemoveAllPlayers();
+
+        var currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+        yield return SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene());
+        yield return SceneManager.LoadSceneAsync(practiceSceneIndex, LoadSceneMode.Additive);
+        SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(practiceSceneIndex));
+
+        var spawnLocater = FindObjectOfType<SpawnLocater>();
+        bikeManager.Init(spawnLocater);
+
+        playerSetupCanvas.SetActive(true);
+        playerSetupManager = new PlayerSetupManager(bikeManager, FinishPlayerSetup, updater, players);
     }
 }

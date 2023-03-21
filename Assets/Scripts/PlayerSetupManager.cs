@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class PlayerSetupManager : MonoBehaviour
+public class PlayerSetupManager
 {
     private List<Color> availableColors = new List<Color>()
     {
@@ -17,20 +17,30 @@ public class PlayerSetupManager : MonoBehaviour
         new Color(0.5f, 0, 1)
     };
 
-    private List<Player> activePlayers = new List<Player>();
-    private List<IInputController> inactiveControllers = IInputController.GetAllControllers();
+    private List<Player> activePlayers = new();
+    private List<IInputController> inactiveControllers = IInputController.allControllers;
     private Dictionary<Player, float> holdDownTime = new();
     private BikeManager bikeManager;
+    private Updater updater;
 
     private const float HOLD_DOWN_TIME_SEC = 2f;
 
     private Action<List<Player>> startGameCallback;
-        
 
-    public void Init(BikeManager bikeManager, Action<List<Player>> startGameCallback)
+    public PlayerSetupManager(BikeManager bikeManager, Action<List<Player>> startGameCallback, Updater updater, List<Player> initialPlayers)
     {
         this.bikeManager = bikeManager;
         this.startGameCallback = startGameCallback;
+        this.updater = updater;
+        initialPlayers.ForEach(p => AddPlayer(p.Input));
+        updater.OnUpdate += Update;
+    }
+
+    private void FinishSetup()
+    {
+        updater.OnUpdate -= Update;
+        bikeManager.RemoveAllPlayers();
+        startGameCallback.Invoke(activePlayers);
     }
 
     private void Update()
@@ -44,7 +54,7 @@ public class PlayerSetupManager : MonoBehaviour
         // remove controllers with sufficient hold down time
         holdDownTime.Where(pair => pair.Value > HOLD_DOWN_TIME_SEC).Select(pair => pair.Key).ToList().ForEach(j => RemovePlayer(j));
 
-        if (Input.GetKey(KeyCode.Return)) startGameCallback.Invoke(activePlayers);
+        if (Input.GetKey(KeyCode.Return)) FinishSetup();
         
     }
 

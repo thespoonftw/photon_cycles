@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class LiveGameManager : MonoBehaviour
 {
@@ -12,14 +11,17 @@ public class LiveGameManager : MonoBehaviour
 
     private List<Player> allPlayers = new();
     private List<Player> livingPlayers = new();
-    private BikeManager bikeManager;
+
+    private const int pointsToWin = 5;
 
     private int countdown_seconds = 0;
+
+    private Action endGameCallback;
         
 
-    public void Init(BikeManager bikeManager, List<Player> players)
+    public void Init(BikeManager bikeManager, List<Player> players, Action endGameCallback)
     {
-        this.bikeManager = bikeManager;
+        this.endGameCallback = endGameCallback;
         allPlayers = players;
 
         bikeManager.CreateBikesForPlayers(players);
@@ -27,6 +29,7 @@ public class LiveGameManager : MonoBehaviour
         foreach (var p in players)
         {
             p.Bike.OnDeath += () => OnPlayerDeath(p);
+            p.Canvas.SetPoints("0");
         }
 
         StartRound();
@@ -64,7 +67,6 @@ public class LiveGameManager : MonoBehaviour
 
     private void OnPlayerDeath(Player player)
     {
-        Debug.Log("A player died");
         livingPlayers.Remove(player);
         if (livingPlayers.Count <= 1)
         {
@@ -74,15 +76,35 @@ public class LiveGameManager : MonoBehaviour
 
     private void EndRound()
     {
-        livingPlayers.ForEach(p => p.Bike.PauseBikeAtEndOfRound());
+        if (livingPlayers.Count > 0)
+        {
+            var winner = livingPlayers.First();
+            winner.Bike.PauseBikeAtEndOfRound();
+            winner.AddPoint();
+        }
+
         StartCoroutine(EndRoundAsync());
     }
 
     private IEnumerator EndRoundAsync()
     {
         yield return new WaitForSeconds(3f);
-        StartRound();
-    } 
+
+        if (allPlayers.Select(p => p.Points).Any(p => p >= pointsToWin))
+        {
+            EndGame();
+        }
+        else
+        {
+            StartRound();
+        }        
+    }
+
+    private void EndGame()
+    {
+        allPlayers.ForEach(p => p.Bike.ResetBikeStartOfRound());
+        endGameCallback.Invoke();
+    }
 
     
 }

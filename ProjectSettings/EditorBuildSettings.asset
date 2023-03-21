@@ -9,12 +9,12 @@ EditorBuildSettings:
     path: Assets/Scenes/Startup.unity
     guid: c733fec4317bb374a9d8f12b12ecd48c
   - enabled: 1
-    path: Assets/Scenes/WeaveLevel.unity
-    guid: 3e6a58fd69d93a94ba4813c057a1ea95
-  - enabled: 1
     path: Assets/Scenes/ToroidalLevel.unity
     guid: a04b0b509f248934dbc741ef2efd964d
   - enabled: 1
-    path: Assets/Scenes/BumpsLevel.unity
+    path: Assets/Scenes/WeaveLevel.unity
+    guid: 3e6a58fd69d93a94ba4813c057a1ea95
+  - enabled: 1
+    path: Assets/Scenes/FlatLevel.unity
     guid: 00fb0ad76fc95084d901869dd7e36349
   m_configObjects: {}

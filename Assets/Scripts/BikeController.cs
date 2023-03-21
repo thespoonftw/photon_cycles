@@ -8,8 +8,10 @@ public class BikeController : MonoBehaviour
     [SerializeField] List<GameObject> partsToColour;
     [SerializeField] GameObject body;
 
+    private Player player;
     private TrailBuilder trailBuilder;
     private BikeMover bikeMover;
+    private BoostController boostController;
 
     private bool isMoving = false;
     private Transform spawn;
@@ -19,6 +21,7 @@ public class BikeController : MonoBehaviour
     public void Init(Player player, Transform spawn)
     {
         this.spawn = spawn;
+        this.player = player;
 
         var mat = new Material(partsToColour[0].GetComponent<MeshRenderer>().material);
         mat.color = player.Color;
@@ -27,6 +30,7 @@ public class BikeController : MonoBehaviour
         trailBuilder.Init(player);
         bikeMover = GetComponent<BikeMover>();
         bikeMover.Init(player.Input);
+        boostController = new BoostController(player);
     }
 
     public Transform GetCameraTransform() => cameraTransform;
@@ -36,6 +40,7 @@ public class BikeController : MonoBehaviour
         transform.position = spawn.position;
         transform.rotation = spawn.rotation;
         SetVisible(true);
+        boostController.Reset();
         trailBuilder.ClearTrail();
     }
 
@@ -57,16 +62,16 @@ public class BikeController : MonoBehaviour
 
     private void Update()
     {
-        if (isMoving)
-        {
-            if (bikeMover.IsColliding())
-            {
-                Kill();
-            }
+        if (!isMoving) 
+            return;
 
-            bikeMover.UpdatePosition();
+        if (bikeMover.IsColliding())
+        {
+            Kill();
         }
 
+        var isBoosting = boostController.IsBoosting();
+        bikeMover.UpdatePosition(isBoosting);
         trailBuilder.AddTrail();
     }
 

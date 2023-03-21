@@ -29,9 +29,9 @@ public class BikeMover : MonoBehaviour
 
     private float GetPullUpTurnRadius() => unboosted_speed / (pullup_turn_speed * Mathf.Deg2Rad);
 
-    public void UpdatePosition()
+    public void UpdatePosition(bool isBoosting)
     {
-        var speed = input.IsButton1Held() ? boosted_speed : unboosted_speed;
+        var speed = isBoosting ? boosted_speed : unboosted_speed;
         MoveForward(speed);
 
         var centrePosition = GetGroundTarget(Vector3.zero);

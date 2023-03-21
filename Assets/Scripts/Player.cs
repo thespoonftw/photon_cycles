@@ -11,6 +11,12 @@ public class Player
 
     public Color Color { get; private set; }
 
+    public GameObject CanvasGo { get; private set; }
+
+    public BikeCanvasController Canvas { get; private set; }
+
+    public int Points { get; private set; }
+
     public Player(IInputController input, Color color)
     {
         this.Input = input;
@@ -22,9 +28,17 @@ public class Player
         Bike = bike;
     }
 
-    public void SetCamera(Camera camera)
+    public void SetCamera(Camera camera, GameObject canvasGo)
     {
         Camera = camera;
+        CanvasGo = canvasGo;
+        Canvas = CanvasGo.GetComponent<BikeCanvasController>();
+    }
+
+    public void AddPoint()
+    {
+        Points++;
+        Canvas.SetPoints(Points.ToString());
     }
 
     public void RemoveBike()

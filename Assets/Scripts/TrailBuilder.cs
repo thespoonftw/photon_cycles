@@ -35,6 +35,7 @@ public class TrailBuilder : MonoBehaviour
         meshRenderer = go.AddComponent<MeshRenderer>();
         meshRenderer.material = trailMat;
         meshCollider = go.AddComponent<MeshCollider>();
+        meshCollider.cookingOptions = MeshColliderCookingOptions.None;
         go.layer = 3;
 
         AddTrail();
@@ -51,6 +52,7 @@ public class TrailBuilder : MonoBehaviour
         triangles.Clear();
         n = 0;
         meshFilter.mesh.Clear();
+        meshCollider.sharedMesh?.Clear();
 
         AddTrail();
     }

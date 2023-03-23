@@ -590,9 +590,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4369604518080204590}
-  - component: {fileID: 4369604518080204577}
-  - component: {fileID: 1436814914295936310}
-  - component: {fileID: 1258327990888201100}
+  - component: {fileID: 1673295637237274726}
   - component: {fileID: 3494029811681865208}
   - component: {fileID: 2603505145842922126}
   - component: {fileID: 5121302313063922149}
@@ -622,7 +620,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4369604518080204577
+--- !u!114 &1673295637237274726
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -631,7 +629,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4369604518080204587}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2e9614f3a6146024fbbfc81b29567ee4, type: 3}
+  m_Script: {fileID: 11500000, guid: b6ecb9aa06bd84646adbe338977c6e20, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   cameraTransform: {fileID: 4369604517790006381}
@@ -640,31 +638,6 @@ MonoBehaviour:
   - {fileID: 2764676484411020181}
   - {fileID: 4369604516686437913}
   body: {fileID: 7666922174708549012}
---- !u!114 &1436814914295936310
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4369604518080204587}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 530b88c60ed0e0e43a9374b90a8f21d2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  trailMaterial: {fileID: 2100000, guid: 855d33bd371443f438642d98586346c1, type: 2}
---- !u!114 &1258327990888201100
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4369604518080204587}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aba44a690657b314aa4f44afe39a55fc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!54 &3494029811681865208
 Rigidbody:
   m_ObjectHideFlags: 0

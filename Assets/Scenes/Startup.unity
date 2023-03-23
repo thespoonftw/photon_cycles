@@ -397,8 +397,8 @@ MonoBehaviour:
   bikeGlowMaterial: {fileID: 2100000, guid: 855d33bd371443f438642d98586346c1, type: 2}
   bikePrefab: {fileID: 4369604518080204587, guid: f37e1a849e62fe847b08c84e0baba325, type: 3}
   bikeCanvasPrefab: {fileID: 4193892649740453099, guid: 26a0db89cf3544b40ba79b130f6c94c8, type: 3}
-  playerSetupCanvasPrefab: {fileID: 1533965818005099771, guid: 02ca0bee932168d4d98110ad5f602250, type: 3}
-  levelSelectCanvasPrefab: {fileID: 3538233656690320481, guid: 878b196636045d045b555ec63ef898be, type: 3}
+  playerSetupCanvasPrefab: {fileID: 7552037597430195556, guid: 02ca0bee932168d4d98110ad5f602250, type: 3}
+  levelSelectCanvasPrefab: {fileID: 6173673494393129550, guid: 878b196636045d045b555ec63ef898be, type: 3}
 --- !u!4 &1623249629
 Transform:
   m_ObjectHideFlags: 0

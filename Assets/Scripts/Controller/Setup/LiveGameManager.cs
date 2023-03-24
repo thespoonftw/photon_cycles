@@ -1,13 +1,10 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using TMPro;
-using UnityEngine;
 
 public class LiveGameManager
 {
-    private const int pointsToWin = 5;
+    private const int pointsToWin = 2;
 
     private readonly List<BikeController> allBikes;
     private readonly Action endGameCallback;

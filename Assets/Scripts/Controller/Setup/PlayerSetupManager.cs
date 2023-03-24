@@ -24,16 +24,16 @@ public class PlayerSetupManager
     private readonly Updater updater;
     private readonly Action<List<Player>> startGameCallback;
     private readonly GameObject playerSetupCanvas;
+    private readonly IInputController leadInput;
 
     private const float HOLD_DOWN_TIME_SEC = 2f;
 
-    
-
-    public PlayerSetupManager(BikeManager bikeManager, Action<List<Player>> startGameCallback, Updater updater, List<Player> initialPlayers, Resourcer resourcer)
+    public PlayerSetupManager(BikeManager bikeManager, Action<List<Player>> startGameCallback, Updater updater, List<Player> initialPlayers, Resourcer resourcer, IInputController leadInput)
     {
         this.bikeManager = bikeManager;
         this.startGameCallback = startGameCallback;
         this.updater = updater;
+        this.leadInput = leadInput;
 
         playerSetupCanvas = GameObject.Instantiate(resourcer.playerSetupCanvasPrefab);
         initialPlayers.ForEach(p => AddPlayer(p.Input));
@@ -42,6 +42,9 @@ public class PlayerSetupManager
 
     private void FinishSetup()
     {
+        if (activePlayers.Count == 0)
+            return;
+
         GameObject.Destroy(playerSetupCanvas);
         updater.OnUpdate -= Update;
         bikeManager.RemoveAllBikes();
@@ -51,7 +54,7 @@ public class PlayerSetupManager
     private void Update()
     {
         // add controllers that have movement
-        inactiveControllers.Where(j => j.GetXAxis() != 0).ToList().ForEach(j => AddPlayer(j));
+        inactiveControllers.Where(j => j.GetHorizontal() != 0).ToList().ForEach(j => AddPlayer(j));
 
         // measure hold down time
         activePlayers.ForEach(j => MeasureHoldDownTime(j));
@@ -59,7 +62,8 @@ public class PlayerSetupManager
         // remove controllers with sufficient hold down time
         holdDownTime.Where(pair => pair.Value > HOLD_DOWN_TIME_SEC).Select(pair => pair.Key).ToList().ForEach(j => RemovePlayer(j));
 
-        if (Input.GetKey(KeyCode.Return)) FinishSetup();
+        if (leadInput.GetStartDown()) 
+            FinishSetup();
         
     }
 
@@ -86,7 +90,7 @@ public class PlayerSetupManager
 
     private void MeasureHoldDownTime(Player player)
     {
-        if (player.Input.IsButton2Held())
+        if (player.Input.GetAction())
         {
             holdDownTime[player] += Time.deltaTime;            
         }

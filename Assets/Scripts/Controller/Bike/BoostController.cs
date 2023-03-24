@@ -28,7 +28,7 @@ public class BoostController
         remainingBoost = Math.Min(1, remainingBoost + amountToRegen);
         canvas.SetBoost(remainingBoost);
 
-        if (!input.IsButton1Held())
+        if (!input.GetBoost())
             return false;
 
         var amountToDrain = drainRate * Time.deltaTime;

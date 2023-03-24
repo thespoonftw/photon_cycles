@@ -71,7 +71,7 @@ public class MovementController
     private void GroundMovement(Vector3 center)
     {
         transform.position = center;
-        transform.Rotate(new Vector3(0, ground_turn_speed * Time.deltaTime * input.GetXAxis(), 0));
+        transform.Rotate(new Vector3(0, ground_turn_speed * Time.deltaTime * input.GetHorizontal(), 0));
 
         var front = GetGroundTarget(transform.forward);
         var back = GetGroundTarget(-transform.forward);
@@ -114,7 +114,7 @@ public class MovementController
 
     private void AirMovement()
     {
-        transform.Rotate(new Vector3(0, air_turn_speed * Time.deltaTime * input.GetXAxis(), 0));
+        transform.Rotate(new Vector3(0, air_turn_speed * Time.deltaTime * input.GetHorizontal(), 0));
 
         if (!TryLand())
         {

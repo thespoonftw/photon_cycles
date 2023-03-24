@@ -399,6 +399,8 @@ MonoBehaviour:
   bikeCanvasPrefab: {fileID: 4193892649740453099, guid: 26a0db89cf3544b40ba79b130f6c94c8, type: 3}
   playerSetupCanvasPrefab: {fileID: 7552037597430195556, guid: 02ca0bee932168d4d98110ad5f602250, type: 3}
   levelSelectCanvasPrefab: {fileID: 6173673494393129550, guid: 878b196636045d045b555ec63ef898be, type: 3}
+  titleScreenCanvasPrefab: {fileID: 6173673494393129550, guid: 1d545d701d5b4bc40a2866da16a07f4f, type: 3}
+  mainMenuCanvasPrefab: {fileID: 6173673494393129550, guid: e20d3d44713c1654aa09abc979f59626, type: 3}
 --- !u!4 &1623249629
 Transform:
   m_ObjectHideFlags: 0

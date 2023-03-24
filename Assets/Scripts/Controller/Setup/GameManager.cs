@@ -11,12 +11,32 @@ public class GameManager
 
     private List<Player> players = new();
     private int levelSelectIndex;
+    private IInputController leadInput;
 
     public GameManager(Resourcer resourcer, Updater updater)
     {
         this.resourcer = resourcer;
         this.updater = updater;
-        LoadPlayerSetup();
+        StartTitleScreen();
+    }
+
+    private void StartTitleScreen()
+    {
+        var titleScreen = new TitleScreenController(resourcer, updater, StartMenuScreen);
+    }
+
+    private void StartMenuScreen(IInputController leadInput)
+    {
+        this.leadInput = leadInput;
+        var menuScreen = new MainMenuController(resourcer, updater, leadInput, FinishMenuScreen);
+    }
+
+    private void FinishMenuScreen(MainMenuSelection selection)
+    {
+        if (selection == MainMenuSelection.Local)
+        {
+            LoadPlayerSetup();
+        }
     }
 
     private void LoadPlayerSetup()
@@ -28,7 +48,7 @@ public class GameManager
     {
         var spawnLocater = updater.FindSpawnLocater();
         var bikeManager = new BikeManager(spawnLocater, resourcer, updater);
-        new PlayerSetupManager(bikeManager, FinishPlayerSetup, updater, players, resourcer);
+        new PlayerSetupManager(bikeManager, FinishPlayerSetup, updater, players, resourcer, leadInput);
     }
 
     private void FinishPlayerSetup(List<Player> players)
@@ -39,7 +59,7 @@ public class GameManager
 
     private void StartLevelSelect()
     {
-        var levelSelectManager = new LevelSelectController(updater, players.First(), resourcer, FinishLevelSelect);
+        var levelSelectManager = new LevelSelectController(updater, leadInput, resourcer, FinishLevelSelect);
     }
 
     private void FinishLevelSelect(int levelSelectIndex)
@@ -56,7 +76,7 @@ public class GameManager
     }
 
     private void FinishLiveGame()
-    {;
+    {
         updater.UnloadScene(levelSelectIndex, LoadPlayerSetup);
     }
 }

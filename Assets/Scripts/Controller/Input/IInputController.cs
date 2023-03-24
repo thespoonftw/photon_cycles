@@ -2,11 +2,19 @@ using System.Collections.Generic;
 
 public interface IInputController
 {
-    public int GetXAxis();
+    public int GetHorizontal();
 
-    public bool IsButton1Held();
+    public int GetHorizontalDown();
 
-    public bool IsButton2Held();
+    public int GetVertical();
+
+    public int GetVerticalDown();
+
+    public bool GetBoost();
+
+    public bool GetAction();
+
+    public bool GetStartDown();
 
     public static List<IInputController> allControllers = new()
     {
@@ -18,7 +26,6 @@ public interface IInputController
         new GamepadController(3, false),
         new GamepadController(4, true),
         new GamepadController(4, false),
-        new WASDController(),
-        new ArrowsController()
+        new KeyboardController()
     };
 }

@@ -15,4 +15,8 @@ public class Resourcer : MonoBehaviour
     public GameObject playerSetupCanvasPrefab;
 
     public GameObject levelSelectCanvasPrefab;
+
+    public GameObject titleScreenCanvasPrefab;
+
+    public GameObject mainMenuCanvasPrefab;
 }

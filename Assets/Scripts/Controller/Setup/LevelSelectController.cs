@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class LevelSelectController
@@ -8,19 +7,16 @@ public class LevelSelectController
     private readonly Action<int> levelSelectCallback;
     private readonly LevelSelectCanvas canvas;
     private readonly Updater updater;
-    private readonly Player leadPlayer;
+    private readonly IInputController leadInput;
+    private readonly List<int> levelIndexes = new List<int>() { 1, 2, 3 };
 
-    private bool disableSelection = false;
     private int currentSelectionIndex = 0;
 
-    private List<int> levelIndexes = new List<int>() { 1, 2, 3 };
-
-
-    public LevelSelectController(Updater updater, Player leadPlayer, Resourcer resourcer, Action<int> levelSelectCallback)
+    public LevelSelectController(Updater updater, IInputController leadInput, Resourcer resourcer, Action<int> levelSelectCallback)
     {
         this.levelSelectCallback = levelSelectCallback;
         this.updater = updater;
-        this.leadPlayer = leadPlayer;
+        this.leadInput = leadInput;
 
         var canvasGo = GameObject.Instantiate(resourcer.levelSelectCanvasPrefab);
         canvas = canvasGo.GetComponent<LevelSelectCanvas>();
@@ -32,31 +28,17 @@ public class LevelSelectController
 
     private void Update()
     {
-        var input = leadPlayer.Input.GetXAxis();
+        var hori = leadInput.GetHorizontalDown();
+        if (hori != 0)
+            SwitchSelection(hori);
 
-        if (input != 0)
-            SwitchSelection(input);
-        else
-            disableSelection = false;
-
-        if (Input.GetKeyDown(KeyCode.Return))
+        if (leadInput.GetStartDown())
             SelectLevel(levelIndexes[currentSelectionIndex]);        
     }
 
     private void SwitchSelection(int delta)
     {
-        if (disableSelection)
-            return;
-
-        disableSelection = true;
-        currentSelectionIndex += delta;
-
-        if (currentSelectionIndex >= levelIndexes.Count)
-            currentSelectionIndex = 0;
-
-        if (currentSelectionIndex < 0)
-            currentSelectionIndex = levelIndexes.Count - 1;
-
+        currentSelectionIndex = (currentSelectionIndex + delta).Mod(levelIndexes.Count);
         canvas.ChangeSelection(currentSelectionIndex);
     }
 

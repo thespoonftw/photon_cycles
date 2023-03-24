@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -16,9 +17,10 @@ public class Startup : MonoBehaviour
 
     [SerializeField] Updater updater;
     [SerializeField] Resourcer resourcer;
+    [SerializeField] NetworkManager network;
 
     private void Start()
     {
-        var gameManager = new GameManager(resourcer, updater);
+        var gameManager = new GameManager(resourcer, updater, network);
     }
 }

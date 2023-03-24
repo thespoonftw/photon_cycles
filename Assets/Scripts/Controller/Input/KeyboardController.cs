@@ -32,9 +32,14 @@ public class KeyboardController : IInputController
         return 0;
     }
 
-    public bool GetStartDown()
+    public bool GetProceedDown()
     {
         return Input.GetKeyDown(KeyCode.Return);
+    }
+
+    public bool GetReturnDown()
+    {
+        return Input.GetKeyDown(KeyCode.Backspace) || Input.GetKeyDown(KeyCode.Escape);
     }
 
     public int GetHorizontalDown()

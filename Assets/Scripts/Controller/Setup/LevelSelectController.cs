@@ -32,7 +32,7 @@ public class LevelSelectController
         if (hori != 0)
             SwitchSelection(hori);
 
-        if (leadInput.GetStartDown())
+        if (leadInput.GetProceedDown())
             SelectLevel(levelIndexes[currentSelectionIndex]);        
     }
 

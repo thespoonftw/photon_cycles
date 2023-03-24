@@ -3,9 +3,8 @@ using UnityEngine;
 
 public enum MainMenuSelection
 {
-    Local,
+    Play,
     Join,
-    Host,
 }
 
 public class MainMenuController
@@ -14,7 +13,7 @@ public class MainMenuController
     private readonly Action<MainMenuSelection> callback;
     private readonly MainMenuCanvas canvas;
     private readonly IInputController input;
-    private readonly int numberOfOptions = 3;
+    private readonly int numberOfOptions = 2;
 
     private int currentSelectionIndex = 0;
 
@@ -31,7 +30,7 @@ public class MainMenuController
 
     private void Update()
     {
-        if (input.GetStartDown())
+        if (input.GetProceedDown())
             Complete();
 
         var vert = input.GetVerticalDown();

@@ -12,11 +12,13 @@ public class Resourcer : MonoBehaviour
 
     public GameObject bikeCanvasPrefab;
 
-    public GameObject playerSetupCanvasPrefab;
+    public GameObject lobbyCanvasPrefab;
 
     public GameObject levelSelectCanvasPrefab;
 
     public GameObject titleScreenCanvasPrefab;
 
     public GameObject mainMenuCanvasPrefab;
+
+    public GameObject joinMenuCanvasPrefab;
 }

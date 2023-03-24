@@ -19,7 +19,7 @@ public class TitleScreenController
     {
         foreach (var c in IInputController.allControllers)
         {
-            if (c.GetStartDown())
+            if (c.GetProceedDown())
             {
                 Complete(c);
                 return;

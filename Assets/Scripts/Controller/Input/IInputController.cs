@@ -14,7 +14,9 @@ public interface IInputController
 
     public bool GetAction();
 
-    public bool GetStartDown();
+    public bool GetProceedDown();
+
+    public bool GetReturnDown();
 
     public static List<IInputController> allControllers = new()
     {

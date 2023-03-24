@@ -6,8 +6,10 @@ public class GamepadController : IInputController
     private readonly string xAxisString;
     private readonly string tAxisString;
     private readonly string yAxisString;
-    private readonly KeyCode startCode1 = 0;
-    private readonly KeyCode startCode2 = 0;
+    private readonly KeyCode proceedCode1 = 0;
+    private readonly KeyCode proceedCode2 = 0;
+    private readonly KeyCode returnCode1 = 0;
+    private readonly KeyCode returnCode2 = 0;
     private readonly KeyCode actionCode = 0;
 
     private int lastFrameCount;
@@ -23,14 +25,18 @@ public class GamepadController : IInputController
         yAxisString = $"C{controllerNumber}-{side}-Y";
         tAxisString = $"C{controllerNumber}-{side}-T";
 
+        var keyCodeBase = controllerNumber * 20 + 330;
+
         if (isLeftJoystick)
         {
-            startCode1 = (KeyCode)(controllerNumber * 20 + 330);
-            startCode2 = (KeyCode)(controllerNumber * 20 + 337);
-            actionCode = (KeyCode)(controllerNumber * 20 + 4);
+            proceedCode1 = (KeyCode)(keyCodeBase);
+            proceedCode2 = (KeyCode)(keyCodeBase + 7);
+            returnCode1 = (KeyCode)(keyCodeBase + 6);
+            returnCode2 = (KeyCode)(keyCodeBase + 1);
+            actionCode = (KeyCode)(keyCodeBase + 4);
         } else
         {
-            actionCode = (KeyCode)(controllerNumber * 20 + 5);
+            actionCode = (KeyCode)(keyCodeBase + 5);
         }
             
     }
@@ -69,12 +75,20 @@ public class GamepadController : IInputController
         return 0;
     }
 
-    public bool GetStartDown()
+    public bool GetProceedDown()
     {
-        if (startCode1 == 0 && startCode2 == 0)
+        if (proceedCode1 == 0 && proceedCode2 == 0)
             return false;
 
-        return Input.GetKeyDown(startCode1) || Input.GetKeyDown(startCode2);
+        return Input.GetKeyDown(proceedCode1) || Input.GetKeyDown(proceedCode2);
+    }
+
+    public bool GetReturnDown()
+    {
+        if (returnCode1 == 0 && returnCode2 == 0)
+            return false;
+
+        return Input.GetKeyDown(returnCode1) || Input.GetKeyDown(returnCode2);
     }
 
     public int GetHorizontalDown()

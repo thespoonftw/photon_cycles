@@ -123,6 +123,100 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &68572026
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 68572028}
+  - component: {fileID: 68572027}
+  - component: {fileID: 68572029}
+  m_Layer: 0
+  m_Name: NetworkManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &68572027
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 68572026}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 593a2fe42fa9d37498c96f9a383b6521, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  RunInBackground: 1
+  LogLevel: 1
+  NetworkConfig:
+    ProtocolVersion: 0
+    NetworkTransport: {fileID: 68572029}
+    PlayerPrefab: {fileID: 1834499792533706023, guid: 00b81c61b07cc2d4fad97f3aed6d1845, type: 3}
+    NetworkPrefabs: []
+    TickRate: 30
+    ClientConnectionBufferTimeout: 10
+    ConnectionApproval: 0
+    ConnectionData: 
+    EnableTimeResync: 0
+    TimeResyncInterval: 30
+    EnsureNetworkVariableLengthSafety: 0
+    EnableSceneManagement: 1
+    ForceSamePrefabs: 1
+    RecycleNetworkIds: 1
+    NetworkIdRecycleDelay: 120
+    RpcHashSize: 0
+    LoadSceneTimeOut: 120
+    SpawnTimeout: 1
+    EnableNetworkLogs: 1
+--- !u!4 &68572028
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 68572026}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &68572029
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 68572026}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6960e84d07fb87f47956e7a81d71c4e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ProtocolType: 0
+  m_MaxPacketQueueSize: 128
+  m_MaxPayloadSize: 6144
+  m_HeartbeatTimeoutMS: 500
+  m_ConnectTimeoutMS: 1000
+  m_MaxConnectAttempts: 60
+  m_DisconnectTimeoutMS: 30000
+  ConnectionData:
+    Address: 127.0.0.1
+    Port: 7777
+    ServerListenAddress: 
+  DebugSimulator:
+    PacketDelayMS: 0
+    PacketJitterMS: 0
+    PacketDropRate: 0
 --- !u!1 &217191395
 GameObject:
   m_ObjectHideFlags: 0
@@ -237,6 +331,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   updater: {fileID: 1407635407}
   resourcer: {fileID: 1623249628}
+  network: {fileID: 68572027}
 --- !u!4 &344248922
 Transform:
   m_ObjectHideFlags: 0
@@ -397,10 +492,11 @@ MonoBehaviour:
   bikeGlowMaterial: {fileID: 2100000, guid: 855d33bd371443f438642d98586346c1, type: 2}
   bikePrefab: {fileID: 4369604518080204587, guid: f37e1a849e62fe847b08c84e0baba325, type: 3}
   bikeCanvasPrefab: {fileID: 4193892649740453099, guid: 26a0db89cf3544b40ba79b130f6c94c8, type: 3}
-  playerSetupCanvasPrefab: {fileID: 7552037597430195556, guid: 02ca0bee932168d4d98110ad5f602250, type: 3}
+  lobbyCanvasPrefab: {fileID: 7552037597430195556, guid: 02ca0bee932168d4d98110ad5f602250, type: 3}
   levelSelectCanvasPrefab: {fileID: 6173673494393129550, guid: 878b196636045d045b555ec63ef898be, type: 3}
   titleScreenCanvasPrefab: {fileID: 6173673494393129550, guid: 1d545d701d5b4bc40a2866da16a07f4f, type: 3}
   mainMenuCanvasPrefab: {fileID: 6173673494393129550, guid: e20d3d44713c1654aa09abc979f59626, type: 3}
+  joinMenuCanvasPrefab: {fileID: 6173673494393129550, guid: d96b9e1ce8891844cb4e59de5e4d378e, type: 3}
 --- !u!4 &1623249629
 Transform:
   m_ObjectHideFlags: 0

@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Netcode;
 
 public class GameManager
 {
@@ -8,15 +10,17 @@ public class GameManager
 
     private readonly Updater updater;
     private readonly Resourcer resourcer;
+    private readonly NetworkManager network;
 
     private List<Player> players = new();
     private int levelSelectIndex;
     private IInputController leadInput;
 
-    public GameManager(Resourcer resourcer, Updater updater)
+    public GameManager(Resourcer resourcer, Updater updater, NetworkManager network)
     {
         this.resourcer = resourcer;
         this.updater = updater;
+        this.network = network;
         StartTitleScreen();
     }
 
@@ -33,25 +37,29 @@ public class GameManager
 
     private void FinishMenuScreen(MainMenuSelection selection)
     {
-        if (selection == MainMenuSelection.Local)
+        if (selection == MainMenuSelection.Play)
         {
-            LoadPlayerSetup();
+            LoadLobby();
+        }
+        else if (selection == MainMenuSelection.Join)
+        {
+            var joinMenu = new JoinMenuController(resourcer, leadInput, network, updater);
         }
     }
 
-    private void LoadPlayerSetup()
+    private void LoadLobby()
     {
-        updater.LoadScene(practiceSceneIndex, StartPlayerSetup);
+        updater.LoadScene(practiceSceneIndex, StartLobby);
     }
 
-    private void StartPlayerSetup()
+    private void StartLobby()
     {
         var spawnLocater = updater.FindSpawnLocater();
         var bikeManager = new BikeManager(spawnLocater, resourcer, updater);
-        new PlayerSetupManager(bikeManager, FinishPlayerSetup, updater, players, resourcer, leadInput);
+        new LobbyManager(bikeManager, FinishLobby, updater, players, resourcer, leadInput);
     }
 
-    private void FinishPlayerSetup(List<Player> players)
+    private void FinishLobby(List<Player> players)
     {
         this.players = players;
         updater.UnloadScene(practiceSceneIndex, StartLevelSelect);        
@@ -77,6 +85,12 @@ public class GameManager
 
     private void FinishLiveGame()
     {
-        updater.UnloadScene(levelSelectIndex, LoadPlayerSetup);
+        updater.UnloadScene(levelSelectIndex, LoadLobby);
+    }
+
+    private void LoadScene(int sceneIndex, Action postLoadAction)
+    {
+        var m = network.SceneManager.LoadScene("this", UnityEngine.SceneManagement.LoadSceneMode.Additive);
+        network.SceneManager.
     }
 }

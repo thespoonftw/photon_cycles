@@ -1,22 +1,25 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class LevelSelectController
 {
-    private readonly Action<int> levelSelectCallback;
+    private readonly Action levelSelectCallback;
+    private readonly LevelManager levelManager;
     private readonly LevelSelectCanvas canvas;
     private readonly Updater updater;
     private readonly IInputController leadInput;
-    private readonly List<int> levelIndexes = new List<int>() { 1, 2, 3 };
+    private readonly List<string> levelNames;
 
     private int currentSelectionIndex = 0;
 
-    public LevelSelectController(Updater updater, IInputController leadInput, Resourcer resourcer, Action<int> levelSelectCallback)
+    public LevelSelectController(Updater updater, IInputController leadInput, Resourcer resourcer, Action levelSelectCallback, LevelManager levelManager)
     {
         this.levelSelectCallback = levelSelectCallback;
         this.updater = updater;
         this.leadInput = leadInput;
+        this.levelManager = levelManager;
 
         var canvasGo = GameObject.Instantiate(resourcer.levelSelectCanvasPrefab);
         canvas = canvasGo.GetComponent<LevelSelectCanvas>();
@@ -24,6 +27,7 @@ public class LevelSelectController
         canvas.gameObject.SetActive(true);
         updater.OnUpdate += Update;
         canvas.ChangeSelection(0);
+        levelNames = levelManager.LevelNames;
     }
 
     private void Update()
@@ -33,20 +37,20 @@ public class LevelSelectController
             SwitchSelection(hori);
 
         if (leadInput.GetProceedDown())
-            SelectLevel(levelIndexes[currentSelectionIndex]);        
+            SelectLevel(levelNames[currentSelectionIndex]);        
     }
 
     private void SwitchSelection(int delta)
     {
-        currentSelectionIndex = (currentSelectionIndex + delta).Mod(levelIndexes.Count);
+        currentSelectionIndex = (currentSelectionIndex + delta).Mod(levelNames.Count);
         canvas.ChangeSelection(currentSelectionIndex);
     }
 
-    private void SelectLevel(int levelSelectIndex)
+    private void SelectLevel(string levelName)
     {
         updater.OnUpdate -= Update;
         canvas.gameObject.SetActive(false);
         GameObject.Destroy(canvas.gameObject);
-        levelSelectCallback.Invoke(levelSelectIndex);
+        levelManager.LoadLevel(levelName, levelSelectCallback);
     }
 }

@@ -16,7 +16,7 @@ public class GameManager
         this.resourcer = resourcer;
         this.updater = updater;
         this.network = network;
-        levelManager = new LevelManager(network);
+        levelManager = new LevelManager(network, resourcer);
         StartTitleScreen();
     }
 
@@ -35,25 +35,33 @@ public class GameManager
     {
         if (selection == MainMenuSelection.Play)
         {
-            network.StartHost();
-            LoadLobby();
+            HostLobby();
         }
         else if (selection == MainMenuSelection.Join)
         {
-            var joinMenu = new JoinMenuController(resourcer, leadInput, network, updater);
+            var joinMenu = new JoinMenuController(resourcer, leadInput, network, updater, JoinLobby);
         }
+    }
+
+    private void HostLobby()
+    {
+        network.StartHost();
+        LoadLobby();
     }
 
     private void LoadLobby()
     {
-        levelManager.LoadPracticeLevel(StartLobby);
+        levelManager.LoadLevel(resourcer.practiceLevel, StartLobby);
+    }
+
+    private void JoinLobby()
+    {
+        network.StartClient();
     }
 
     private void StartLobby()
     {
-        var spawnLocater = updater.FindSpawnLocater();
-        var bikeManager = new BikeManager(spawnLocater, resourcer, updater);
-        new LobbyManager(bikeManager, FinishLobby, updater, players, resourcer, leadInput);
+        new LobbyManager(FinishLobby, updater, players, resourcer, leadInput, network);
     }
 
     private void FinishLobby(List<Player> players)
@@ -69,8 +77,6 @@ public class GameManager
 
     private void StartLiveGame()
     {
-        var spawnLocater = updater.FindSpawnLocater();
-        var bikeManager = new BikeManager(spawnLocater, resourcer, updater);
-        var liveGameManager = new LiveGameManager(bikeManager, players, LoadLobby, updater);
+        var liveGameManager = new LiveGameManager(players, LoadLobby, updater, resourcer);
     }
 }

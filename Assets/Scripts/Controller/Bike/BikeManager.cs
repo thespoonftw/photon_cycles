@@ -6,17 +6,21 @@ using UnityEngine;
 
 public class BikeManager
 {
-    private Dictionary<Player, BikeController> dict = new();
+    private const float SMALL_SCREEN_FACTOR = 0.75f;
 
-    private SpawnLocater spawnLocater;
-    private Resourcer resourcer;
-    private Updater updater;
+    private readonly Dictionary<Player, BikeController> dict = new();
+    private readonly SpawnLocater spawnLocater;
+    private readonly Resourcer resourcer;
+    private readonly Updater updater;
+    private readonly bool isSmallerScreen;
 
-    public BikeManager(SpawnLocater spawnLocater, Resourcer resourcer, Updater updater)
+    public BikeManager(Resourcer resourcer, Updater updater, bool isSmallerScreen)
     {
-        this.spawnLocater = spawnLocater;
         this.resourcer = resourcer;
         this.updater = updater;
+        this.isSmallerScreen = isSmallerScreen;
+
+        spawnLocater = updater.FindSpawnLocater();
     }
 
     public List<BikeController> GetBikes()
@@ -69,9 +73,21 @@ public class BikeManager
         int i = 0;
         foreach (var bike in dict.Values)
         {
-            bike.MoveCamera(CameraValues.GetCameraRect(i, dict.Count));
+            bike.MoveCamera(GetRect(i));
             i++;
         }
     }
 
+    private Rect GetRect(int screenIndex)
+    {
+        var r = CameraValues.GetCameraRect(screenIndex, dict.Count);
+
+        if (!isSmallerScreen) 
+            return r;
+
+        var xOffset = (1 - SMALL_SCREEN_FACTOR) + (r.x * SMALL_SCREEN_FACTOR);
+        var yOffset = (1 - SMALL_SCREEN_FACTOR) / 2f + (r.y * SMALL_SCREEN_FACTOR);
+
+        return new Rect(xOffset, yOffset, r.width * SMALL_SCREEN_FACTOR, r.height * SMALL_SCREEN_FACTOR);
+    }
 }

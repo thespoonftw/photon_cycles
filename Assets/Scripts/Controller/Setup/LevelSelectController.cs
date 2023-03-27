@@ -27,7 +27,7 @@ public class LevelSelectController
         canvas.gameObject.SetActive(true);
         updater.OnUpdate += Update;
         canvas.ChangeSelection(0);
-        levelNames = levelManager.LevelNames;
+        levelNames = resourcer.levels;
     }
 
     private void Update()

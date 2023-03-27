@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Netcode;
 using UnityEngine;
 
 public class LobbyManager
@@ -25,19 +26,22 @@ public class LobbyManager
     private readonly Action<List<Player>> startGameCallback;
     private readonly GameObject canvasGo;
     private readonly IInputController leadInput;
+    private readonly NetworkManager network;
 
     private const float HOLD_DOWN_TIME_SEC = 2f;
 
-    public LobbyManager(BikeManager bikeManager, Action<List<Player>> startGameCallback, Updater updater, List<Player> initialPlayers, Resourcer resourcer, IInputController leadInput)
+    public LobbyManager(Action<List<Player>> startGameCallback, Updater updater, List<Player> initialPlayers, Resourcer resourcer, IInputController leadInput, NetworkManager network)
     {
-        this.bikeManager = bikeManager;
         this.startGameCallback = startGameCallback;
         this.updater = updater;
         this.leadInput = leadInput;
+        this.network = network;
 
+        bikeManager = new BikeManager(resourcer, updater, true);
         canvasGo = GameObject.Instantiate(resourcer.lobbyCanvasPrefab);
         initialPlayers.ForEach(p => AddPlayer(p.Input));
         updater.OnUpdate += Update;
+        network.OnClientConnectedCallback += ClientConnected;
     }
 
     private void FinishSetup()
@@ -98,5 +102,10 @@ public class LobbyManager
         {
             holdDownTime[player] = 0;
         }
-    }    
+    }
+
+    private void ClientConnected(ulong clientId)
+    {
+        Debug.Log(clientId + "connected");
+    }
 }

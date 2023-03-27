@@ -14,12 +14,12 @@ public class LiveGameManager
     private int countdown_seconds = 0;
     private List<BikeController> livingBikes = new();
 
-    public LiveGameManager(BikeManager bikeManager, List<Player> players, Action endGameCallback, Updater updater)
+    public LiveGameManager(List<Player> players, Action endGameCallback, Updater updater, Resourcer resourcer)
     {
         this.endGameCallback = endGameCallback;
-        this.bikeManager = bikeManager;
         this.updater = updater;
 
+        bikeManager = new BikeManager(resourcer, updater, false);
         allBikes = bikeManager.CreateBikesForPlayers(players);
 
         foreach (var b in allBikes)

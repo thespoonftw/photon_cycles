@@ -21,4 +21,8 @@ public class Resourcer : MonoBehaviour
     public GameObject mainMenuCanvasPrefab;
 
     public GameObject joinMenuCanvasPrefab;
+
+    public string practiceLevel;
+
+    public List<string> levels;
 }

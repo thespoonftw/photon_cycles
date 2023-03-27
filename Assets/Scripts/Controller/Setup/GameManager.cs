@@ -1,26 +1,22 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using Unity.Netcode;
 
 public class GameManager
 {
-    private const int practiceSceneIndex = 1;
-
     private readonly Updater updater;
     private readonly Resourcer resourcer;
     private readonly NetworkManager network;
 
     private List<Player> players = new();
-    private int levelSelectIndex;
     private IInputController leadInput;
+    private LevelManager levelManager;
 
     public GameManager(Resourcer resourcer, Updater updater, NetworkManager network)
     {
         this.resourcer = resourcer;
         this.updater = updater;
         this.network = network;
+        levelManager = new LevelManager(network);
         StartTitleScreen();
     }
 
@@ -39,6 +35,7 @@ public class GameManager
     {
         if (selection == MainMenuSelection.Play)
         {
+            network.StartHost();
             LoadLobby();
         }
         else if (selection == MainMenuSelection.Join)
@@ -49,7 +46,7 @@ public class GameManager
 
     private void LoadLobby()
     {
-        updater.LoadScene(practiceSceneIndex, StartLobby);
+        levelManager.LoadPracticeLevel(StartLobby);
     }
 
     private void StartLobby()
@@ -62,35 +59,18 @@ public class GameManager
     private void FinishLobby(List<Player> players)
     {
         this.players = players;
-        updater.UnloadScene(practiceSceneIndex, StartLevelSelect);        
+        StartLevelSelect();      
     }
 
     private void StartLevelSelect()
     {
-        var levelSelectManager = new LevelSelectController(updater, leadInput, resourcer, FinishLevelSelect);
-    }
-
-    private void FinishLevelSelect(int levelSelectIndex)
-    {
-        this.levelSelectIndex = levelSelectIndex;
-        updater.LoadScene(levelSelectIndex, StartLiveGame);
+        var levelSelectManager = new LevelSelectController(updater, leadInput, resourcer, StartLiveGame, levelManager);
     }
 
     private void StartLiveGame()
     {
         var spawnLocater = updater.FindSpawnLocater();
         var bikeManager = new BikeManager(spawnLocater, resourcer, updater);
-        var liveGameManager = new LiveGameManager(bikeManager, players, FinishLiveGame, updater);
-    }
-
-    private void FinishLiveGame()
-    {
-        updater.UnloadScene(levelSelectIndex, LoadLobby);
-    }
-
-    private void LoadScene(int sceneIndex, Action postLoadAction)
-    {
-        var m = network.SceneManager.LoadScene("this", UnityEngine.SceneManagement.LoadSceneMode.Additive);
-        network.SceneManager.
+        var liveGameManager = new LiveGameManager(bikeManager, players, LoadLobby, updater);
     }
 }

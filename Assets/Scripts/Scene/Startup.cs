@@ -15,12 +15,13 @@ public class Startup : MonoBehaviour
         }
     }
 
-    [SerializeField] Updater updater;
-    [SerializeField] Resourcer resourcer;
+    [SerializeField] MonoManager mono;
+    [SerializeField] ResourceManager resourcer;
     [SerializeField] NetworkManager network;
 
     private void Start()
     {
-        var gameManager = new GameManager(resourcer, updater, network);
+        var game = new Game(mono, network, resourcer);
+        new GameController(game);
     }
 }

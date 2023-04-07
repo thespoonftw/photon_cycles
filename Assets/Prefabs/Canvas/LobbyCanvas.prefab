@@ -142,7 +142,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Connected Players:'
+  m_text: 'Players:'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -223,7 +223,7 @@ GameObject:
   - component: {fileID: 7608527934825100547}
   - component: {fileID: 4278932306183850381}
   m_Layer: 5
-  m_Name: 'Connected Players: (1)'
+  m_Name: ConnectedList
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -277,9 +277,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Host
-
-    Player 1'
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -360,6 +358,7 @@ GameObject:
   - component: {fileID: 7552037597430195547}
   - component: {fileID: 7552037597430195546}
   - component: {fileID: 7552037597430195557}
+  - component: {fileID: 3758644204214091921}
   m_Layer: 5
   m_Name: LobbyCanvas
   m_TagString: Untagged
@@ -453,6 +452,19 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &3758644204214091921
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7552037597430195556}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7742749651d3e3a4a977c79fa37ea27f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lobbyList: {fileID: 4278932306183850381}
 --- !u!1 &7552037598231267219
 GameObject:
   m_ObjectHideFlags: 0
